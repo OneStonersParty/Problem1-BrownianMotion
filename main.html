@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+ 	<head>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+
+		<script
+			src="https://code.jquery.com/jquery-3.2.1.min.js"
+			integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+			crossorigin="anonymous"></script>
+  	</head>
+  
+	<body>
+        <div id="main-field">
+            
+        </div>
+
+        <div id="legend"></div>
+	</body>
+
+	<script type="text/javascript">
+		var boardSize = 70;
+        var tileWidth = 10;
+
+        var visitMap = [
+            [1,"#ababab"],
+            [2,"#B8B79D"],
+            [5,"#CAC68A"],
+            [10,"#DFD873"],
+            //[20,"#D1C842"],
+            [20,"#FFC440"],
+            [50,"#FF9732"],
+            [100,"#FF5F1F"],
+            [200,"#FF1E0A"],
+            //[1000,"red"]
+        ];
+
+        function getPos(coord) {
+            return 2 + (2+tileWidth) * coord;
+        }
+
+        function update(traveller) {
+            traveller.elem.css("left", getPos(traveller.x) + "px").css("top", getPos(traveller.y) + "px");
+            var currentTile = $(".x" + traveller.x + ".y" + traveller.y);
+            var visits = currentTile.data("visits") + 1;
+            currentTile.data("visits", visits);
+            currentTile.children().text(visits);
+            for (var i = visitMap.length-1; i >= 0 ; i--) {
+                if (visits >= visitMap[i][0]) {
+                    currentTile.css("background-color", visitMap[i][1]);
+                    break;
+                }
+            }
+        }
+
+        $(document).ready(function () {
+            var mf = $("#main-field");
+            var legend = $("#legend");
+
+            for (var y = 0; y < boardSize; y++) {
+                for (var x = 0; x < boardSize; x++) {
+                    mf.append($("<div class='tile tooltip x" + x + " y" + y + "' style='left: " + getPos(x) + "px; top: " + getPos(y) + "px;'><div class='tooltiptext'>0</div></div>").data("visits", 0));
+                }
+            }
+
+            for (var i = 0; i < visitMap.length; i++) {
+                legend.append($("<div style='background-color: " + visitMap[i][1] + "; left: " + 60*i + "px;'>" + visitMap[i][0] + "</div>"));
+            }
+
+            var traveller = {
+                x: Math.floor(boardSize/2),
+                y: Math.floor(boardSize/2),
+                elem: $("<div class='traveller'></div>")
+            };
+
+            mf.append(traveller.elem);
+            update(traveller);
+
+            setInterval(function () {
+                while (true) {
+                    var diceroll = Math.floor((Math.random() * 4));
+                    if (diceroll == 0 && traveller.x > 0) {
+                        traveller.x --;
+                        break;
+                    }
+                    else if (diceroll == 1 && traveller.y > 0) {
+                        traveller.y --;
+                        break;
+                    }
+                    else if (diceroll == 2 && traveller.x < boardSize - 1) {
+                        traveller.x ++;
+                        break;
+                    }
+                    else if (diceroll == 3 && traveller.y < boardSize - 1) {
+                        traveller.y ++;
+                        break;
+                    }
+                }
+                update(traveller);
+            }, 1);
+            
+        });
+	</script>
+</html>
